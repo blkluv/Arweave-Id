@@ -1,5 +1,3 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import type { NextPage } from 'next';
 import { useState, useEffect } from 'react';
 import styles from '../styles/Home.module.css';
 import { ethers } from 'ethers';
@@ -19,7 +17,7 @@ export default function Dashboard() {
 
 
   useEffect(() => {
-    if (isConnected && address) {
+    if (isConnected && address && signer) {
       checkRegistration();
     }
   }, [isConnected, address, signer]);
@@ -32,7 +30,7 @@ export default function Dashboard() {
       if (status != null && status != undefined) {
         setIsRegister(status)
       }
-      
+
     } catch (error) {
       console.error(error);
     }
