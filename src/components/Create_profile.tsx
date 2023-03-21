@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { useProvider } from 'wagmi';
+
 
 const Wrapper = styled.div`
   display: flex;
@@ -62,23 +64,36 @@ const Button = styled.button`
 `;
 
 export default function ProfileCreation() {
+
   const [name, setName] = useState('');
   const [profilePicture, setProfilePicture] = useState<File | undefined>(undefined);
   const [biography, setBiography] = useState('');
+
 
   const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     setProfilePicture(file);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Handle form submission here
-  };
+  async function handleSubmit() {
+      try {
+        const response = await fetch('/api/ArweaveUploader');
+        const data = await response.json();
+        console.log(data)
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+
+
+
 
   return (
     <Wrapper>
       <h1>Create Your Profile</h1>
+      <button onClick={handleSubmit}>dd</button>
       <Form onSubmit={handleSubmit}>
         <InputGroup>
           <Label htmlFor="name">Name:</Label>
