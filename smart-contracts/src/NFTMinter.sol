@@ -1,24 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts@4.9.1/utils/Counters.sol";
+import "@openzeppelin/contracts@4.9.1/access/Ownable.sol";
+import "@openzeppelin/contracts@4.9.1/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts@4.9.1/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract NFTManager is ERC721URIStorage {
+
+contract NFTMinter is ERC721URIStorage, ReentrancyGuard, Ownable {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenId;
+
+    // Official Arweave fee address
+    address payable ArweaveFeeAddress;
+
     // Maps user addresses to their token IDs
     mapping (address => uint256) public addressToId;
 
 
-    constructor() ERC721("Arweave DI DApp", "DI DApp") {}
+    constructor() ERC721("Arweave DApp", "AR DApp") {}
 
 
     // Mint a new NFT and assign it to the caller
-    function mintNFT(string memory tokenURI, uint256 ArweaveFee) public payable {
+    function mintNFT(string memory tokenURI) public {
 
-        require(msg.value >= ArweaveFee, "The message value is under than Arweave Fee amount");
         uint256 newItemId = _tokenId.current();
 
         _mint(msg.sender, newItemId);
@@ -27,18 +33,30 @@ contract NFTManager is ERC721URIStorage {
         _tokenId.increment();
     }
 
+    // authenticate users through their profile nft
     function authenticate(address _owner) public view returns(bool) {
 
         uint256 token_id = addressToId[_owner];
         address token_owner = IERC721(this).ownerOf(token_id);
 
-        if (token_owner == _owner) {
-            return true;
-        }
+        return (token_owner == _owner);
+    }
 
-        else{
-            return false;
+    // pay upload price for nft metadata
+    function payUploadFee(uint256 _amount) external payable nonReentrant {
+
+        require(msg.value >= _amount, "Insufficient message value");
+        uint256 contractBalance = address(this).balance;
+
+        if(contractBalance > 0) {
+            ArweaveFeeAddress.transfer(contractBalance);
         }
+    }
+
+
+    function updateUploadAddress(address _newFeeAddress) external onlyOwner {
+
+        ArweaveFeeAddress = payable(_newFeeAddress);
     }
 
 
