@@ -2,5 +2,19 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+ffi = true
+
+remappings = ['@openzeppelin/contracts@4.9.1=lib/openzeppelin-contracts/contracts']
+
+[etherscan]
+polygon = { key = "${POLYGON_API_KEY}"}
+mumbai = { key = "${POLYGON_API_KEY}"}
+
+
+
+[rpc_endpoints]
+mumbai = "${MUMBAI_RPC_URL}"
+
+
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
